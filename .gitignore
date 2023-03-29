@@ -41,5 +41,3 @@ target/
 /gradlew
 /gradlew.bat
 /src/test/java/docs/
-/src/test/java/tests/fortests/
-/src/test/resources/key/e2e-tests_classic.ppk
