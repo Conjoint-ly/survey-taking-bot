@@ -17,8 +17,8 @@
         doTheThing = function () {
             // Matrix constant sum
             if ($(".frame-current[data-question-type='matrix-constant-sum']").length > 0) {
-                let colNumber = $(".frame-current").find(".matrix-table").attr("data-col-count");
-                let rowNumber = $(".frame-current").find(".matrix-table-row__content:visible").length - 3;
+                let colNumber = Number($(".frame-current").find(".matrix.desktop").attr("data-column-count"));
+                let rowNumber = $(".frame-current").find(".matrix.desktop .matrix-body-item:visible").length - 2;
                 let randomNumber;
                 for (let i = 1; i <= colNumber; i++) {
                     let sum = $(".frame-current").get(0).instance.dto.totalValue;
@@ -41,8 +41,8 @@
 
             // Matrix likert
             if ($(".frame-current[data-question-type='matrix-likert']").length > 0) {
-                let colNumber = Number($(".frame-current").find(".matrix-table").attr("data-col-count"));
-                let rowNumber = $(".frame-current").find(".matrix-table-row__content:visible").length - 1;
+                let colNumber = Number($(".frame-current").find(".matrix.desktop").attr("data-column-count"));
+                let rowNumber = $(".frame-current").find(".matrix.desktop .matrix-body-item:visible").length;
                 let randomNumber;
                 if ($(".frame-current").get(0).instance.dto.numberOfResponses.direction == "row") {
                     for (let i = 0; i < rowNumber; i++) {
@@ -64,8 +64,8 @@
 
             // Matrix multiple
             if ($(".frame-current[data-question-type='matrix-multiple']").length > 0) {
-                let colNumber = Number($(".frame-current").find(".matrix-table").attr("data-col-count"));
-                let rowNumber = $(".frame-current").find(".matrix-table-row__content:visible").length - 1;
+                let colNumber = Number($(".frame-current").find(".matrix.desktop").attr("data-column-count"));
+                let rowNumber = $(".frame-current").find(".matrix.desktop .matrix-body-item:visible").length;
                 let randomNumber;
                 if ($(".frame-current").get(0).instance.dto.numberOfResponses.direction == "row") {
                     for (let i = 0; i < rowNumber; i++) {
@@ -73,9 +73,8 @@
                         if ($(".frame-current").find("[data-index-col=" + randomNumber + "]").find("input[type=radio]").length > 0) {
                             $(".frame-current").find("[data-index-col=" + randomNumber + "]").find("input[type=radio]")[i].click();
                         } else {
-                            $(".frame-current").find("[data-index-col=" + randomNumber + "]").find("input[type=checkbox]")[i].click();
+                            $(".frame-current").find("[data-index-col=" + randomNumber + "]").find("input[type=checkbox]")[i].parentNode.click();
                         }
-
                     }
                 } else {
                     for (let i = 1; i <= colNumber; i++) {
@@ -83,7 +82,7 @@
                         if ($(".frame-current").find("[data-index-col=" + i + "]").find("input[type=radio]").length > 0) {
                             $(".frame-current").find("[data-index-col=" + i + "]").find("input[type=radio]")[randomNumber].click();
                         } else {
-                            $(".frame-current").find("[data-index-col=" + i + "]").find("input[type=checkbox]")[randomNumber].click();
+                            $(".frame-current").find("[data-index-col=" + i + "]").find("input[type=checkbox]")[randomNumber].parentNode.click();
                         }
 
                     }
@@ -97,8 +96,8 @@
 
             // Matrix short input
             if ($(".frame-current[data-question-type='matrix-short']").length > 0) {
-                let colNumber = Number($(".frame-current").find(".matrix-table").attr("data-col-count"));
-                let rowNumber = $(".frame-current").find(".matrix-table-row__content:visible").length - 1;
+                let colNumber = Number($(".frame-current").find(".matrix.desktop").attr("data-column-count"));
+                let rowNumber = $(".frame-current").find(".matrix.desktop .matrix-body-item:visible").length;
                 let randomNumber;
 
                 if ($(".frame-current").get(0).instance.dto.numberOfResponses.direction == "row") {
@@ -121,8 +120,8 @@
 
             // Matrix number
             if ($(".frame-current[data-question-type='matrix-number']").length > 0) {
-                let colNumber = Number($(".frame-current").find(".matrix-table").attr("data-col-count"));
-                let rowNumber = $(".frame-current").find(".matrix-table-row__content:visible").length - 1;
+                let colNumber = Number($(".frame-current").find(".matrix.desktop").attr("data-column-count"));
+                let rowNumber = $(".frame-current").find(".matrix.desktop .matrix-body-item:visible").length;
                 let randomNumber;
                 if ($(".frame-current").get(0).instance.dto.numberOfResponses.direction == "row") {
                     for (let i = 0; i < rowNumber; i++) {
@@ -163,6 +162,9 @@
                 }
                 let randomNumber;
                 for (let i = 0; i < numberOfContainers; i++) {
+                    if (arrayOfCards.length === 0) {
+                        break
+                    }
                     randomNumber = randomBetween(0, arrayOfCards.length);
                     changeDomElementPosition(arrayOfCards[randomNumber], $(".frame-current").get(0).instance.$columnsContainers[i]);
                     arrayOfCards.splice(randomNumber, 1);
