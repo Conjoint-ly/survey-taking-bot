@@ -447,10 +447,14 @@
 
             // VW main
             if ($(".frame-current.frame-vw[data-question-type='vw']").length > 0) {
-                $frameCurrent.find("[name$='[vw][too_low]']").val(100 + randomBetween(0, 25));
-                $frameCurrent.find("[name$='[vw][cheap]']").val(125 + randomBetween(0, 25));
-                $frameCurrent.find("[name$='[vw][expensive]']").val(150 + randomBetween(0, 25));
-                $frameCurrent.find("[name$='[vw][too_high]']").val(175 + randomBetween(0, 25));
+                let minPrice = $frameCurrent.get(0).instance.question.parameters.min_price;
+                let maxPrice = $frameCurrent.get(0).instance.question.parameters.max_price;
+                let arrayOfPrices = getRandomIntegersFromRange(minPrice, maxPrice, 4);
+
+                $frameCurrent.find("[name$='[vw][too_low]']").val(arrayOfPrices[0][1]);
+                $frameCurrent.find("[name$='[vw][cheap]']").val(arrayOfPrices[1][0]);
+                $frameCurrent.find("[name$='[vw][expensive]']").val(arrayOfPrices[2][1]);
+                $frameCurrent.find("[name$='[vw][too_high]']").val(arrayOfPrices[3][1]);
                 $frameCurrent.find("button.next-question-vw").eq(0).trigger("click");
                 return false;
             }
