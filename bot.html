@@ -229,7 +229,9 @@
 
             // Short text Number*
             if ($(".frame-current[data-question-type='short'][data-question-answer-type='number']").length > 0) {
-                $frameCurrent.find("input.short-answer[type=number]").val(randomBetween(0, 100));
+                const min = $frameCurrent.get(0).instance.question.parameters.range.from;
+                const max = $frameCurrent.get(0).instance.question.parameters.range.to;
+                $frameCurrent.find("input.short-answer[type=number]").val(randomBetween(min, max + 1));
                 $frameCurrent.find("button.next-question").eq(0).trigger("click");
                 return false;
             }
