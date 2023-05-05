@@ -229,8 +229,10 @@
 
             // Short text Number*
             if ($(".frame-current[data-question-type='short'][data-question-answer-type='number']").length > 0) {
-                const min = $frameCurrent.get(0).instance.question.parameters.range.from;
-                const max = $frameCurrent.get(0).instance.question.parameters.range.to;
+                const fromValue = $frameCurrent.get(0).instance.question.parameters.range.from;
+                const min = (fromValue !== null) ? fromValue : 0;
+                const toValue = $frameCurrent.get(0).instance.question.parameters.range.to;
+                const max = (toValue !== null) ? toValue : 100;
                 $frameCurrent.find("input.short-answer[type=number]").val(randomBetween(min, max + 1));
                 $frameCurrent.find("button.next-question").eq(0).trigger("click");
                 return false;
