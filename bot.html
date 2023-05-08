@@ -281,8 +281,14 @@
 
             // Positive/negative open-ended feedback*
             if ($(".frame-current[data-question-type='feedback']").length > 0) {
-                $frameCurrent.find("textarea.feedback-good-answer").val(faker.random.words(10));
-                $frameCurrent.find("textarea.feedback-bad-answer").val(faker.random.words(10));
+                const fromValue = $frameCurrent.get(0).instance.question.parameters.minCharacters;
+                const min = (fromValue !== null) ? fromValue : 0;
+                const toValue = $frameCurrent.get(0).instance.question.parameters.maxCharacters;
+                const max = (toValue !== null) ? toValue : 100;
+                let randomString = generateString(randomBetween(min, max + 1));
+                $frameCurrent.find("textarea.feedback-good-answer").val(randomString);
+                randomString = generateString(randomBetween(min, max + 1));
+                $frameCurrent.find("textarea.feedback-bad-answer").val(randomString);
                 $frameCurrent.find("button.next-question").eq(0).trigger("click");
                 return false;
             }
