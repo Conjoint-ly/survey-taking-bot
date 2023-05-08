@@ -91,16 +91,22 @@
             if ($(".frame-current[data-question-type='matrix-short']").length > 0) {
                 const colNumber = Number($frameCurrent.find(".matrix.desktop").attr("data-column-count"));
                 const rowNumber = $frameCurrent.find(".matrix.desktop .matrix-body-item:visible").length;
+                const fromValue = $frameCurrent.get(0).instance.question.numberOfCharactersFrom;
+                const min = (fromValue !== null) ? fromValue : 0;
+                const toValue = $frameCurrent.get(0).instance.question.numberOfCharactersTo;
+                const max = (toValue !== null) ? toValue : 100;
                 let randomNumber;
                 if ($frameCurrent.get(0).instance.question.numberOfResponses.direction === "row") {
                     for (let i = 0; i < rowNumber; i++) {
+                        const randomString = generateString(randomBetween(min, max + 1));
                         randomNumber = randomBetween(1, colNumber + 1);
-                        $($frameCurrent.find("[data-index-col=" + randomNumber + "]").find("input:visible")[i]).val(faker.random.words(1));
+                        $($frameCurrent.find("[data-index-col=" + randomNumber + "]").find("input:visible")[i]).val(randomString);
                     }
                 } else {
                     for (let i = 1; i <= colNumber; i++) {
+                        const randomString = generateString(randomBetween(min, max + 1));
                         randomNumber = randomBetween(0, rowNumber);
-                        $($frameCurrent.find("[data-index-col=" + i + "]").find("input:visible")[randomNumber]).val(faker.random.words(1));
+                        $($frameCurrent.find("[data-index-col=" + i + "]").find("input:visible")[randomNumber]).val(randomString);
                     }
                 }
                 $frameCurrent.find("button.js-next-question").eq(0).trigger("click");
@@ -111,16 +117,20 @@
             if ($(".frame-current[data-question-type='matrix-number']").length > 0) {
                 const colNumber = Number($frameCurrent.find(".matrix.desktop").attr("data-column-count"));
                 const rowNumber = $frameCurrent.find(".matrix.desktop .matrix-body-item:visible").length;
+                const fromValue = $frameCurrent.get(0).instance.question.valueRangeFrom;
+                const min = (fromValue !== null) ? fromValue : -100;
+                const toValue = $frameCurrent.get(0).instance.question.valueRangeTo;
+                const max = (toValue !== null) ? toValue : 1000;
                 let randomNumber;
                 if ($frameCurrent.get(0).instance.question.numberOfResponses.direction === "row") {
                     for (let i = 0; i < rowNumber; i++) {
                         randomNumber = randomBetween(1, colNumber + 1);
-                        $($frameCurrent.find("[data-index-col=" + randomNumber + "]").find("input:visible")[i]).val(randomBetween(-100, 1000));
+                        $($frameCurrent.find("[data-index-col=" + randomNumber + "]").find("input:visible")[i]).val(randomBetween(min, max + 1));
                     }
                 } else {
                     for (let i = 1; i <= colNumber; i++) {
                         randomNumber = randomBetween(0, rowNumber);
-                        $($frameCurrent.find("[data-index-col=" + i + "]").find("input:visible")[randomNumber]).val(randomBetween(-100, 1000));
+                        $($frameCurrent.find("[data-index-col=" + i + "]").find("input:visible")[randomNumber]).val(randomBetween(min, max + 1));
                     }
                 }
                 $frameCurrent.find("button.js-next-question").eq(0).trigger("click");
@@ -240,15 +250,23 @@
 
             // Short text Any*
             if ($(".frame-current[data-question-type='short'][data-question-answer-type='any']").length > 0) {
-                $frameCurrent.find("input.short-answer[type=text]").val(faker.random.words(5));
-                $frameCurrent.find("input.short-answer[type=text]").val(faker.random.words(5));
+                const fromValue = $frameCurrent.get(0).instance.question.parameters.minCharacters;
+                const min = (fromValue !== null) ? fromValue : 0;
+                const toValue = $frameCurrent.get(0).instance.question.parameters.maxCharacters;
+                const max = (toValue !== null) ? toValue : 100;
+                const randomString = generateString(randomBetween(min, max + 1));
+                $frameCurrent.find("input.short-answer[type=text]").val(randomString);
                 $frameCurrent.find("button.next-question").eq(0).trigger("click");
                 return false;
             }
 
             // Paragraph*
             if ($(".frame-current[data-question-type='capture'][data-question-answer-type='paragraph']").length > 0) {
-                $frameCurrent.find("textarea.form-capture-answer").val(faker.random.words(10));
+                const textArea = $frameCurrent.find("textarea.form-capture-answer");
+                const min = textArea.data('min-characters') || 0;
+                const max = textArea.data('max-characters');
+                const randomString = generateString(randomBetween(min, max + 1));
+                textArea.val(randomString);
                 $frameCurrent.find("button.next-question").eq(0).trigger("click");
                 return false;
             }
@@ -348,13 +366,11 @@
                         $(heatmap).trigger(mouseDown);
                         $(document).trigger(mouseUp);
                         if ($frameCurrent.find(".js-point-comment").is(':visible')) {
-                            let maxCharacters;
-                            if ($frameCurrent.get(0).instance.question.maxCharacters != null) {
-                                maxCharacters = $frameCurrent.get(0).instance.question.maxCharacters;
-                            } else {
-                                maxCharacters = 17;
-                            }
-                            let randomString = faker.random.words(30).substring(0, maxCharacters);
+                            const fromValue = $frameCurrent.get(0).instance.question.minCharacters;
+                            const min = (fromValue !== null) ? fromValue : 0;
+                            const toValue = $frameCurrent.get(0).instance.question.maxCharacters;
+                            const max = (toValue !== null) ? toValue : 100;
+                            const randomString = generateString(randomBetween(min, max + 1));
                             $frameCurrent.find(".js-point-comment").val(randomString);
                         }
                     }
@@ -379,14 +395,12 @@
                     selection.addRange(range);
                     $frameCurrent.get(0).instance.onMouseUp();
                     $frameCurrent.get(0).instance.hideComment();
-                    if ($frameCurrent.get(0).instance.question.minCharacters > 0) {
-                        let maxCharacters;
-                        if ($frameCurrent.get(0).instance.question.maxCharacters != null) {
-                            maxCharacters = $frameCurrent.get(0).instance.question.maxCharacters;
-                        } else {
-                            maxCharacters = 17;
-                        }
-                        $frameCurrent.get(0).instance.highlights[i].$comment = faker.random.words(30).substring(0, maxCharacters);
+                    const fromValue = $frameCurrent.get(0).instance.question.minCharacters;
+                    const min = (fromValue !== null) ? fromValue : 0;
+                    const toValue = $frameCurrent.get(0).instance.question.maxCharacters;
+                    const max = (toValue !== null) ? toValue : 100;
+                    if (max !== 0) {
+                        $frameCurrent.get(0).instance.highlights[i].$comment = generateString(randomBetween(min, max + 1));
                     }
                 }
                 selection.deleteFromDocument();
@@ -410,13 +424,11 @@
                     $(document).trigger(mouseUp);
 
                     if ($frameCurrent.find(".heatmap-brushes--comment-head").is(':visible')) {
-                        let maxCharacters;
-                        if ($frameCurrent.get(0).instance.question.maxCharacters != null) {
-                            maxCharacters = $frameCurrent.get(0).instance.question.maxCharacters;
-                        } else {
-                            maxCharacters = 17;
-                        }
-                        let randomString = faker.random.words(30).substring(0, maxCharacters);
+                        const fromValue = $frameCurrent.get(0).instance.question.minCharacters;
+                        const min = (fromValue !== null) ? fromValue : 0;
+                        const toValue = $frameCurrent.get(0).instance.question.maxCharacters;
+                        const max = (toValue !== null) ? toValue : 100;
+                        const randomString = generateString(randomBetween(min, max + 1));
                         $frameCurrent.find("textarea:visible").val(randomString);
                     }
                 }
@@ -454,7 +466,6 @@
                 let minPrice = $frameCurrent.get(0).instance.question.parameters.min_price;
                 let maxPrice = $frameCurrent.get(0).instance.question.parameters.max_price;
                 let arrayOfPrices = getRandomIntegersFromRange(minPrice, maxPrice, 4);
-
                 $frameCurrent.find("[name$='[vw][too_low]']").val(arrayOfPrices[0][1]);
                 $frameCurrent.find("[name$='[vw][cheap]']").val(arrayOfPrices[1][0]);
                 $frameCurrent.find("[name$='[vw][expensive]']").val(arrayOfPrices[2][1]);
@@ -622,6 +633,20 @@
                 result.push([num1, num2]);
             } else {
                 result.push([0, 1]);
+            }
+        }
+        return result;
+    }
+
+    function generateString(length) {
+        let result = '';
+        while (result.length < length) {
+            const word = faker.random.words(1);
+            const spaceLeft = length - result.length;
+            if (word.length <= spaceLeft) {
+                result += (result.length ? ' ' : '') + word;
+            } else {
+                result += word.substring(0, spaceLeft);
             }
         }
         return result;
