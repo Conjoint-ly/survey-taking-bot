@@ -4,161 +4,155 @@
 <script>
 
     $(function () {
-        const studyStrategy = 0; //0 - full random, 1 - only min values in conjoint for MWTP
+        const studyStrategy = 0; // 0 — full random, 1 — only min values in conjoint for MWTP
         const locales = ["az", "ar", "cz", "de", "en", "es", "fa", "fi", "fr", "ge", "hy", "hr", "id_ID", "it", "ja",
             "ko", "pl", "ru", "sv", "tr", "vi", "zh_CN", "zh_TW"];
         faker.locale = locales[faker.datatype.number(locales.length - 1)];
 
-        //[min;max)
-        randomBetween = function (min = 0, max = 1) {
+        // [min;max)
+        const randomBetween = function (min = 0, max = 1) {
             return Math.floor(Math.random() * (max - min) + min);
         };
 
-        doTheThing = function () {
+        const doTheThing = function () {
+            const $frameCurrent = $(".frame-current");
             // Matrix constant sum
             if ($(".frame-current[data-question-type='matrix-constant-sum']").length > 0) {
-                let colNumber = Number($(".frame-current").find(".matrix.desktop").attr("data-column-count"));
-                let rowNumber = $(".frame-current").find(".matrix.desktop .matrix-body-item:visible").length - 2;
+                const colNumber = Number($frameCurrent.find(".matrix.desktop").attr("data-column-count"));
+                const rowNumber = $frameCurrent.find(".matrix.desktop .matrix-body-item:visible").length - 2;
                 let randomNumber;
+                let $matrixCsInput;
                 for (let i = 1; i <= colNumber; i++) {
-                    let sum = $(".frame-current").get(0).instance.dto.totalValue;
-                    let balance = sum;
+                    let balance = $frameCurrent.get(0).instance.question.totalValue;
                     for (let j = 0; j < rowNumber; j++) {
-                        if (j == rowNumber - 1) {
-                            $($(".frame-current").find("[data-index-col=" + i + "]").find("input[type=number]")[j]).val(balance).trigger("input");
+                        $matrixCsInput = $frameCurrent.find("[data-index-col=" + i + "]").find("input[type=number]").eq(j);
+                        if (j === rowNumber - 1) {
+                            $matrixCsInput.val(balance).trigger("input");
                         } else {
                             randomNumber = randomBetween(0, balance);
-                            $($(".frame-current").find("[data-index-col=" + i + "]").find("input[type=number]")[j]).val(randomNumber).trigger("input");
+                            $matrixCsInput.val(randomNumber).trigger("input");
                             balance = balance - randomNumber;
                         }
                     }
                 }
-                if ($(".frame-current").find("button.js-next-question").length > 0) {
-                    $(".frame-current").find("button.js-next-question")[0].click();
-                }
+                $frameCurrent.find("button.js-next-question").eq(0).trigger("click");
                 return false;
             }
 
             // Matrix likert
             if ($(".frame-current[data-question-type='matrix-likert']").length > 0) {
-                let colNumber = Number($(".frame-current").find(".matrix.desktop").attr("data-column-count"));
-                let rowNumber = $(".frame-current").find(".matrix.desktop .matrix-body-item:visible").length;
+                const colNumber = Number($frameCurrent.find(".matrix.desktop").attr("data-column-count"));
+                const rowNumber = $frameCurrent.find(".matrix.desktop .matrix-body-item:visible").length;
                 let randomNumber;
-                if ($(".frame-current").get(0).instance.dto.numberOfResponses.direction == "row") {
+                if ($frameCurrent.get(0).instance.question.numberOfResponses.direction === "row") {
                     for (let i = 0; i < rowNumber; i++) {
                         randomNumber = randomBetween(1, colNumber + 1);
-                        $(".frame-current").find("[data-index-col=" + randomNumber + "]").find("input[type=radio]")[i].click();
+                        $frameCurrent.find("[data-index-col=" + randomNumber + "]").find("input[type=radio]")[i].click();
                     }
                 } else {
                     for (let i = 1; i <= colNumber; i++) {
                         randomNumber = randomBetween(0, rowNumber);
-                        $(".frame-current").find("[data-index-col=" + i + "]").find("input[type=radio]")[randomNumber].click();
+                        $frameCurrent.find("[data-index-col=" + i + "]").find("input[type=radio]")[randomNumber].click();
                     }
                 }
-
-                if ($(".frame-current").find("button.js-next-question").length > 0) {
-                    $(".frame-current").find("button.js-next-question")[0].click();
-                }
+                $frameCurrent.find("button.js-next-question").eq(0).trigger("click");
                 return false;
             }
 
             // Matrix multiple
             if ($(".frame-current[data-question-type='matrix-multiple']").length > 0) {
-                let colNumber = Number($(".frame-current").find(".matrix.desktop").attr("data-column-count"));
-                let rowNumber = $(".frame-current").find(".matrix.desktop .matrix-body-item:visible").length;
+                const colNumber = Number($frameCurrent.find(".matrix.desktop").attr("data-column-count"));
+                const rowNumber = $frameCurrent.find(".matrix.desktop .matrix-body-item:visible").length;
                 let randomNumber;
-                if ($(".frame-current").get(0).instance.dto.numberOfResponses.direction == "row") {
+                if ($frameCurrent.get(0).instance.question.numberOfResponses.direction === "row") {
                     for (let i = 0; i < rowNumber; i++) {
                         randomNumber = randomBetween(1, colNumber + 1);
-                        if ($(".frame-current").find("[data-index-col=" + randomNumber + "]").find("input[type=radio]").length > 0) {
-                            $(".frame-current").find("[data-index-col=" + randomNumber + "]").find("input[type=radio]")[i].click();
+                        if ($frameCurrent.find("[data-index-col=" + randomNumber + "]").find("input[type=radio]").length > 0) {
+                            $frameCurrent.find("[data-index-col=" + randomNumber + "]").find("input[type=radio]")[i].click();
                         } else {
-                            $(".frame-current").find("[data-index-col=" + randomNumber + "]").find("input[type=checkbox]")[i].parentNode.click();
+                            $frameCurrent.find("[data-index-col=" + randomNumber + "]").find("input[type=checkbox]")[i].parentNode.click();
                         }
                     }
                 } else {
                     for (let i = 1; i <= colNumber; i++) {
                         randomNumber = randomBetween(0, rowNumber);
-                        if ($(".frame-current").find("[data-index-col=" + i + "]").find("input[type=radio]").length > 0) {
-                            $(".frame-current").find("[data-index-col=" + i + "]").find("input[type=radio]")[randomNumber].click();
+                        if ($frameCurrent.find("[data-index-col=" + i + "]").find("input[type=radio]").length > 0) {
+                            $frameCurrent.find("[data-index-col=" + i + "]").find("input[type=radio]")[randomNumber].click();
                         } else {
-                            $(".frame-current").find("[data-index-col=" + i + "]").find("input[type=checkbox]")[randomNumber].parentNode.click();
+                            $frameCurrent.find("[data-index-col=" + i + "]").find("input[type=checkbox]")[randomNumber].parentNode.click();
                         }
-
                     }
                 }
-
-                if ($(".frame-current").find("button.js-next-question").length > 0) {
-                    $(".frame-current").find("button.js-next-question")[0].click();
-                }
+                $frameCurrent.find("button.js-next-question").eq(0).trigger("click");
                 return false;
             }
 
             // Matrix short input
             if ($(".frame-current[data-question-type='matrix-short']").length > 0) {
-                let colNumber = Number($(".frame-current").find(".matrix.desktop").attr("data-column-count"));
-                let rowNumber = $(".frame-current").find(".matrix.desktop .matrix-body-item:visible").length;
+                const colNumber = Number($frameCurrent.find(".matrix.desktop").attr("data-column-count"));
+                const rowNumber = $frameCurrent.find(".matrix.desktop .matrix-body-item:visible").length;
+                const fromValue = $frameCurrent.get(0).instance.question.numberOfCharactersFrom;
+                const min = (fromValue !== null) ? fromValue : 0;
+                const toValue = $frameCurrent.get(0).instance.question.numberOfCharactersTo;
+                const max = (toValue !== null) ? toValue : 100;
                 let randomNumber;
-
-                if ($(".frame-current").get(0).instance.dto.numberOfResponses.direction == "row") {
+                if ($frameCurrent.get(0).instance.question.numberOfResponses.direction === "row") {
                     for (let i = 0; i < rowNumber; i++) {
+                        const randomString = generateString(randomBetween(min, max + 1));
                         randomNumber = randomBetween(1, colNumber + 1);
-                        $($(".frame-current").find("[data-index-col=" + randomNumber + "]").find("input:visible")[i]).val(faker.random.words(1));
+                        $($frameCurrent.find("[data-index-col=" + randomNumber + "]").find("input:visible")[i]).val(randomString);
                     }
                 } else {
                     for (let i = 1; i <= colNumber; i++) {
+                        const randomString = generateString(randomBetween(min, max + 1));
                         randomNumber = randomBetween(0, rowNumber);
-                        $($(".frame-current").find("[data-index-col=" + i + "]").find("input:visible")[randomNumber]).val(faker.random.words(1));
+                        $($frameCurrent.find("[data-index-col=" + i + "]").find("input:visible")[randomNumber]).val(randomString);
                     }
                 }
-
-                if ($(".frame-current").find("button.js-next-question").length > 0) {
-                    $(".frame-current").find("button.js-next-question")[0].click();
-                }
+                $frameCurrent.find("button.js-next-question").eq(0).trigger("click");
                 return false;
             }
 
             // Matrix number
             if ($(".frame-current[data-question-type='matrix-number']").length > 0) {
-                let colNumber = Number($(".frame-current").find(".matrix.desktop").attr("data-column-count"));
-                let rowNumber = $(".frame-current").find(".matrix.desktop .matrix-body-item:visible").length;
+                const colNumber = Number($frameCurrent.find(".matrix.desktop").attr("data-column-count"));
+                const rowNumber = $frameCurrent.find(".matrix.desktop .matrix-body-item:visible").length;
+                const fromValue = $frameCurrent.get(0).instance.question.valueRangeFrom;
+                const min = (fromValue !== null) ? fromValue : -100;
+                const toValue = $frameCurrent.get(0).instance.question.valueRangeTo;
+                const max = (toValue !== null) ? toValue : 1000;
                 let randomNumber;
-                if ($(".frame-current").get(0).instance.dto.numberOfResponses.direction == "row") {
+                if ($frameCurrent.get(0).instance.question.numberOfResponses.direction === "row") {
                     for (let i = 0; i < rowNumber; i++) {
                         randomNumber = randomBetween(1, colNumber + 1);
-                        $($(".frame-current").find("[data-index-col=" + randomNumber + "]").find("input:visible")[i]).val(randomBetween(-100, 1000));
+                        $($frameCurrent.find("[data-index-col=" + randomNumber + "]").find("input:visible")[i]).val(randomBetween(min, max + 1));
                     }
                 } else {
                     for (let i = 1; i <= colNumber; i++) {
                         randomNumber = randomBetween(0, rowNumber);
-                        $($(".frame-current").find("[data-index-col=" + i + "]").find("input:visible")[randomNumber]).val(randomBetween(-100, 1000));
+                        $($frameCurrent.find("[data-index-col=" + i + "]").find("input:visible")[randomNumber]).val(randomBetween(min, max + 1));
                     }
                 }
-
-                if ($(".frame-current").find("button.js-next-question").length > 0) {
-                    $(".frame-current").find("button.js-next-question")[0].click();
-                }
+                $frameCurrent.find("button.js-next-question").eq(0).trigger("click");
                 return false;
             }
 
             // Matrix ranking
             if ($(".frame-current[data-question-type='matrix-ranking']").length > 0) {
-                let rowNumber = $(".frame-current").get(0).instance.dto.rows.length;
-                let inputNumber = $(".frame-current").find("input:visible").length;
-                $($(".frame-current").find("input:visible")[randomBetween(0, inputNumber)]).val(randomBetween(1, rowNumber + 1));
-                if ($(".frame-current").find("button.next-question").length > 0) {
-                    $(".frame-current").find("button.next-question")[0].click();
-                }
+                const rowNumber = $frameCurrent.get(0).instance.question.rows.length;
+                const inputNumber = $frameCurrent.find("input:visible").length;
+                $($frameCurrent.find("input:visible")[randomBetween(0, inputNumber)]).val(randomBetween(1, rowNumber + 1));
+                $frameCurrent.find("button.next-question").eq(0).trigger("click");
                 return false;
             }
 
             // Matrix categorisation
             if ($(".frame-current[data-question-type='matrix-categorisation']").length > 0) {
-                let numberOfCards = $(".frame-current").get(0).instance.$cards.length;
-                let numberOfContainers = $(".frame-current").get(0).instance.$columnsContainers.length;
+                const numberOfCards = $frameCurrent.get(0).instance.$cards.length;
+                const numberOfContainers = $frameCurrent.get(0).instance.$columnsContainers.length;
                 let arrayOfCards = [];
                 for (let i = 0; i < numberOfCards; i++) {
-                    arrayOfCards.push($(".frame-current").get(0).instance.$cards[i]);
+                    arrayOfCards.push($frameCurrent.get(0).instance.$cards[i]);
                 }
                 let randomNumber;
                 for (let i = 0; i < numberOfContainers; i++) {
@@ -166,199 +160,202 @@
                         break
                     }
                     randomNumber = randomBetween(0, arrayOfCards.length);
-                    changeDomElementPosition(arrayOfCards[randomNumber], $(".frame-current").get(0).instance.$columnsContainers[i]);
+                    changeDomElementPosition(arrayOfCards[randomNumber], $frameCurrent.get(0).instance.$columnsContainers[i]);
                     arrayOfCards.splice(randomNumber, 1);
                 }
-
-                if ($(".frame-current").find("button.js-next-question").length > 0) {
-                    $(".frame-current").find("button.js-next-question")[0].click();
-                }
+                $frameCurrent.find("button.js-next-question").eq(0).trigger("click");
                 return false;
             }
 
             // Kano
             if ($(".frame-current[data-question-type*='kano']").length > 0) {
-                let resultButtonNumber = randomBetween(0, $(".frame-current").find("[class~='kano-item']:visible").length);
-                $(".frame-current").find("[class~='kano-item']:visible .btn-multiple")[resultButtonNumber].click();
+                const resultButtonNumber = randomBetween(0, $frameCurrent.find("[class~='kano-item']:visible").length);
+                $frameCurrent.find("[class~='kano-item']:visible .btn-multiple")[resultButtonNumber].click();
                 return false;
             }
 
             // Multiple choice
             if ($(".frame-current[data-question-type='multiple']").length > 0) {
-                let resultButtonNumber = randomBetween(0, $(".frame-current").find(".btn-multiple:visible").length);
-                $(".frame-current").find(".btn-multiple:visible")[resultButtonNumber].click();
-                if ($(".frame-current").find(".modal-body").is(':visible')) {
-                    $(".frame-current").find("input.multiple-other-text").val(faker.random.words(3));
-                    $(".frame-current").find("button.btn-success").click();
+                const resultButtonNumber = randomBetween(0, $frameCurrent.find(".btn-multiple:visible").length);
+                $frameCurrent.find(".btn-multiple:visible")[resultButtonNumber].click();
+                if ($frameCurrent.find(".modal-body").is(':visible')) {
+                    $frameCurrent.find("input.multiple-other-text").val(faker.random.words(3));
+                    $frameCurrent.find("button.btn-success").eq(0).trigger("click");
                 }
-                if ($(".frame-current").find("button.next-question").length > 0) {
-                    $(".frame-current").find("button.next-question")[0].click();
-                }
-                if ($(".frame-current").find("button.js-next-question").length > 0) {
-                    $(".frame-current").find("button.js-next-question")[0].click();
-                }
+                $frameCurrent.find("button.js-next-question").eq(0).trigger("click");
+                $frameCurrent.find("button.next-question").eq(0).trigger("click");
                 return false;
             }
 
             // Constant sum*
             if ($(".frame-current[data-question-type='constantsum']").length > 0) {
-                let maxItem = $(".frame-current").find("input[type=number]:visible").length;
-                let sum = ($(".frame-current").find("input[type=hidden][name*=summary]")).attr("value");
-                let balance = sum;
+                const maxItem = $frameCurrent.find("input[type=number]:visible").length;
+                let balance = $frameCurrent.find("input[type=hidden][name*=summary]").attr("value");
                 let randomNumber;
                 for (let i = 0; i < maxItem; i++) {
-                    if (i == maxItem - 1) {
-                        $(".frame-current").find("input[type=number]:visible:eq(" + i + ")").val(balance);
+                    if (i === maxItem - 1) {
+                        $frameCurrent.find("input[type=number]:visible:eq(" + i + ")").val(balance);
                     } else {
                         randomNumber = randomBetween(0, balance);
-                        $(".frame-current").find("input[type=number]:visible:eq(" + i + ")").val(randomNumber);
+                        $frameCurrent.find("input[type=number]:visible:eq(" + i + ")").val(randomNumber);
                         balance = balance - randomNumber;
                     }
                 }
-                $(".frame-current").find("button.next-question-constantsum")[0].click();
+                $frameCurrent.find("button.next-question-constantsum").eq(0).trigger("click");
                 return false;
             }
 
             // Dropdown
             if ($(".frame-current[data-question-type='dropdown']").length > 0) {
-                let maxItem = $(".frame-current").find("select > option").length;
-                let numberOption = randomBetween(1, maxItem);
-                let valueOfOption = $(".frame-current").find("select > option")[numberOption].getAttribute("value");
-                if ($(".frame-current").find("[data-type='other']") && numberOption == 1) {
-                    $(".frame-current").find("select > option")[1].textContent = faker.random.words(1);
+                const maxItem = $frameCurrent.find("select > option").length;
+                const numberOption = randomBetween(1, maxItem);
+                const valueOfOption = $frameCurrent.find("select > option")[numberOption].getAttribute("value");
+                if ($frameCurrent.find("[data-type='other']") && numberOption === 1) {
+                    $frameCurrent.find("select > option")[1].textContent = faker.random.words(1);
                 }
-                $(".frame-current").find("select.select2-hidden-accessible").val(valueOfOption);
-                $(".frame-current").find("select.select2-hidden-accessible").trigger("change");
-                $(".frame-current").find("button.next-question")[0].click();
+                $frameCurrent.find("select.select2-hidden-accessible").val(valueOfOption);
+                $frameCurrent.find("select.select2-hidden-accessible").trigger("change");
+                $frameCurrent.find("button.next-question").eq(0).trigger("click");
                 return false;
             }
 
             // Regexp*
             if ($(".frame-current[data-question-type='short'][data-question-answer-type='regexp']").length > 0) {
-                let pattern = $(".frame-current").find("input[data-type='regexp']").attr("pattern");
-                $(".frame-current").find("input[data-type='regexp']").val(new RandExp(pattern).gen());
-                $(".frame-current").find("button.next-question")[0].click();
+                const pattern = $frameCurrent.find("input[data-type='regexp']").attr("pattern");
+                $frameCurrent.find("input[data-type='regexp']").val(new RandExp(pattern).gen());
+                $frameCurrent.find("button.next-question").eq(0).trigger("click");
                 return false;
             }
 
             // Email question*
             if ($(".frame-current[data-question-type='short'][data-question-answer-type='email']").length > 0) {
-                let oldLocale = faker.locale;
+                const oldLocale = faker.locale;
                 faker.locale = 'en';
-                $(".frame-current").find("input[type=email]").val(faker.internet.email());
-                $(".frame-current").find("button.next-question")[0].click();
+                $frameCurrent.find("input[type=email]").val(faker.internet.email());
+                $frameCurrent.find("button.next-question").eq(0).trigger("click");
                 faker.locale = oldLocale;
                 return false;
             }
 
             // Short text Number*
             if ($(".frame-current[data-question-type='short'][data-question-answer-type='number']").length > 0) {
-                $(".frame-current").find("input.short-answer[type=number]").val(randomBetween(0, 100));
-                $(".frame-current").find("button.next-question")[0].click();
+                const fromValue = $frameCurrent.get(0).instance.question.parameters.range.from;
+                const min = (fromValue !== null) ? fromValue : 0;
+                const toValue = $frameCurrent.get(0).instance.question.parameters.range.to;
+                const max = (toValue !== null) ? toValue : 100;
+                $frameCurrent.find("input.short-answer[type=number]").val(randomBetween(min, max + 1));
+                $frameCurrent.find("button.next-question").eq(0).trigger("click");
                 return false;
             }
 
             // Short text Any*
             if ($(".frame-current[data-question-type='short'][data-question-answer-type='any']").length > 0) {
-                $(".frame-current").find("input.short-answer[type=text]").val(faker.random.words(5));
-                $(".frame-current").find("input.short-answer[type=text]").val(faker.random.words(5));
-                $(".frame-current").find("button.next-question")[0].click();
+                const fromValue = $frameCurrent.get(0).instance.question.parameters.minCharacters;
+                const min = (fromValue !== null) ? fromValue : 0;
+                const toValue = $frameCurrent.get(0).instance.question.parameters.maxCharacters;
+                const max = (toValue !== null) ? toValue : 100;
+                const randomString = generateString(randomBetween(min, max + 1));
+                $frameCurrent.find("input.short-answer[type=text]").val(randomString);
+                $frameCurrent.find("button.next-question").eq(0).trigger("click");
                 return false;
             }
 
             // Paragraph*
             if ($(".frame-current[data-question-type='capture'][data-question-answer-type='paragraph']").length > 0) {
-                $(".frame-current").find("textarea.form-capture-answer").val(faker.random.words(10));
-                $(".frame-current").find("button.next-question")[0].click();
+                const textArea = $frameCurrent.find("textarea.form-capture-answer");
+                const min = textArea.data('min-characters') || 0;
+                const max = textArea.data('max-characters');
+                const randomString = generateString(randomBetween(min, max + 1));
+                textArea.val(randomString);
+                $frameCurrent.find("button.next-question").eq(0).trigger("click");
                 return false;
             }
 
             // Good and bad answer in PVS, BPTO, Claims etc.*
-            if ($(".frame-current").find("textarea.paragraph-bad-answer").length > 0) {
-                $(".frame-current").find("textarea.paragraph-good-answer").val(faker.random.words(10));
-                $(".frame-current").find("textarea.paragraph-bad-answer").val(faker.random.words(10));
-                $(".frame-current").find("button.next-question")[0].click();
+            if ($frameCurrent.find("textarea.paragraph-bad-answer").length > 0) {
+                $frameCurrent.find("textarea.paragraph-good-answer").val(faker.random.words(10));
+                $frameCurrent.find("textarea.paragraph-bad-answer").val(faker.random.words(10));
+                $frameCurrent.find("button.next-question").eq(0).trigger("click");
                 return false;
             }
 
             // Positive/negative open-ended feedback*
             if ($(".frame-current[data-question-type='feedback']").length > 0) {
-                $(".frame-current").find("textarea.feedback-good-answer").val(faker.random.words(10));
-                $(".frame-current").find("textarea.feedback-bad-answer").val(faker.random.words(10));
-                $(".frame-current").find("button.next-question")[0].click();
+                const fromValue = $frameCurrent.get(0).instance.question.parameters.minCharacters;
+                const min = (fromValue !== null) ? fromValue : 0;
+                const toValue = $frameCurrent.get(0).instance.question.parameters.maxCharacters;
+                const max = (toValue !== null) ? toValue : 100;
+                let randomString = generateString(randomBetween(min, max + 1));
+                $frameCurrent.find("textarea.feedback-good-answer").val(randomString);
+                randomString = generateString(randomBetween(min, max + 1));
+                $frameCurrent.find("textarea.feedback-bad-answer").val(randomString);
+                $frameCurrent.find("button.next-question").eq(0).trigger("click");
                 return false;
             }
 
             // Likert scale*
             if ($(".frame-current[data-question-type='likert']").length > 0) {
-                $(".frame-current").find("div.likert-radio").find("[class^='next-question']")[randomBetween(0, $(".frame-current").find("div.likert-radio").length)].click();
+                $frameCurrent.find("div.likert-radio").find("[class^='next-question']")[randomBetween(0, $frameCurrent.find("div.likert-radio").length)].click();
                 return false;
             }
 
             // Ranking*
             if ($(".frame-current[data-question-type='ranking']").length > 0) {
-                let maxItem = $(".frame-current").find(".aq-ranking-list-item:visible").length;
-                $(".frame-current").find("input[type=number]:visible:eq(0)").val(randomBetween(1, maxItem));
-                //$(".frame-current").find("input[type=number]:eq(randomItem)").click();
-                $(".frame-current").find("button.next-question")[0].click();
+                const maxItem = $frameCurrent.find(".aq-ranking-list-item:visible").length;
+                $frameCurrent.find("input[type=number]:visible:eq(0)").val(randomBetween(1, maxItem));
+                $frameCurrent.find("button.next-question").eq(0).trigger("click");
                 return false;
             }
 
             // Star rating*
             if ($(".frame-current[data-question-type='starrating']").length > 0) {
-                let maxItem = $(".frame-current").find(".scale-row:visible").length;
-                let starNumber = $(".frame-current").find(".scale-row:eq(0)").find(".scale-radio").length;
+                const maxItem = $frameCurrent.find(".scale-row:visible").length;
+                const starNumber = $frameCurrent.find(".scale-row:eq(0)").find(".scale-radio").length;
                 for (let i = 0; i < maxItem; i++) {
                     let randomStar = randomBetween(0, starNumber);
-                    $(".frame-current").find(".scale-row:visible:eq(" + i + ")").find(".scale-radio")[randomStar].click();
+                    $frameCurrent.find(".scale-row:visible:eq(" + i + ")").find(".scale-radio")[randomStar].click();
                 }
-
-                if ($(".frame-current").find(".next-question-starrating").length > 0) {
-                    $(".frame-current").find(".next-question-starrating")[0].click();
-                }
+                $frameCurrent.find(".next-question-starrating").eq(0).trigger("click");
                 return false;
             }
 
             // Dual positive/negative scale*
             if ($(".frame-current[data-question-type='dualscale']").length > 0) {
-                $(".frame-current").find(".scale-radio")[randomBetween(0, $(".frame-current").find(".scale-radio").length)].click();
-                //add btnNext.click
-                if ($(".frame-current").find(".next-question-starrating").length > 0) {
-                    $(".frame-current").find(".next-question-starrating")[0].click();
-                }
+                $frameCurrent.find(".scale-radio")[randomBetween(0, $frameCurrent.find(".scale-radio").length)].click();
+                $frameCurrent.find(".next-question-starrating").eq(0).trigger("click");
                 return false;
             }
 
             // Net Promoter Score*
             if ($(".frame-current[data-question-type='nps']").length > 0) {
-                $(".frame-current").find(".js-radiobutton")[randomBetween(0, $(".frame-current").find(".js-radiobutton").length)].click();
+                $frameCurrent.find(".js-radiobutton")[randomBetween(0, $frameCurrent.find(".js-radiobutton").length)].click();
                 return false;
             }
 
             // Slider*
             if ($(".frame-current[data-question-type='slider']").length > 0) {
-                let maxItem = $(".frame-current").find("input[type=number]:visible").length;
-                let fromNumber = Number($(".frame-current").find(".aq-slider-scale__item[style='left: 0']").text());
-                let toNumber = Number($(".frame-current").find(".aq-slider-scale__item[style='right: 0']").text()) + 1;
+                const maxItem = $frameCurrent.find("input[type=number]:visible").length;
+                const fromNumber = Number($frameCurrent.find(".aq-slider-scale__item[style='left: 0']").text());
+                const toNumber = Number($frameCurrent.find(".aq-slider-scale__item[style='right: 0']").text()) + 1;
                 let randomNumber;
                 for (let i = 0; i <= maxItem; i++) {
                     randomNumber = randomBetween(fromNumber, toNumber);
-                    $(".frame-current").find("input[type=number]:visible:eq(" + i + ")").val(randomNumber);
+                    $frameCurrent.find("input[type=number]:visible:eq(" + i + ")").val(randomNumber);
                 }
-                $(".frame-current").find("button.next-question")[0].click();
+                $frameCurrent.find("button.next-question").eq(0).trigger("click");
                 return false;
             }
 
             // Image heatmap DOTS
             if ($(".frame-current[data-question-type='image-heatmap-dots']").length > 0) {
-                let numberOfItems = $(".frame-current").get(0).instance.question.items.length;
+                const numberOfItems = $frameCurrent.get(0).instance.question.items.length;
                 let numberOfDots = 0;
                 let numberOfDotsFrom = 0;
                 let numberOfDotsTo = 0;
                 for (let i = 0; i < numberOfItems; i++) {
-                    numberOfDotsFrom = $(".frame-current").get(0).instance.question.items[i].numberOfItemsFrom;
-                    numberOfDotsTo = $(".frame-current").get(0).instance.question.items[i].numberOfItemsTo;
-                    if (numberOfDotsFrom == 0 && numberOfDotsTo == 300) {
+                    numberOfDotsFrom = $frameCurrent.get(0).instance.question.items[i].numberOfItemsFrom;
+                    numberOfDotsTo = $frameCurrent.get(0).instance.question.items[i].numberOfItemsTo;
+                    if (numberOfDotsFrom === 0 && numberOfDotsTo === 300) {
                         numberOfDots = randomBetween(0, 11);
                     } else {
                         numberOfDots = randomBetween(numberOfDotsFrom, numberOfDotsFrom + 1);
@@ -367,32 +364,30 @@
                     for (let j = 0; j < numberOfDots; j++) {
                         let mouseDown = new jQuery.Event("mousedown");
                         let mouseUp = new jQuery.Event("mouseup");
-                        let heatmap = $(".frame-current").find(".img-fluid");
+                        let heatmap = $frameCurrent.find(".img-fluid");
                         mouseDown.pageX = mouseUp.pageX = heatmap.get(0).getBoundingClientRect().x + randomBetween(0,
                             heatmap.get(0).getBoundingClientRect().width);
                         mouseDown.pageY = mouseUp.pageY = heatmap.get(0).getBoundingClientRect().y + randomBetween(0,
                             heatmap.get(0).getBoundingClientRect().height);
                         $(heatmap).trigger(mouseDown);
                         $(document).trigger(mouseUp);
-                        if ($(".frame-current").find(".js-point-comment").is(':visible')) {
-                            let maxCharacters;
-                            if ($(".frame-current").get(0).instance.question.maxCharacters != null) {
-                                maxCharacters = $(".frame-current").get(0).instance.question.maxCharacters;
-                            } else {
-                                maxCharacters = 17;
-                            }
-                            let randomString = faker.random.words(30).substring(0, maxCharacters);
-                            $(".frame-current").find(".js-point-comment").val(randomString);
+                        if ($frameCurrent.find(".js-point-comment").is(':visible')) {
+                            const fromValue = $frameCurrent.get(0).instance.question.minCharacters;
+                            const min = (fromValue !== null) ? fromValue : 0;
+                            const toValue = $frameCurrent.get(0).instance.question.maxCharacters;
+                            const max = (toValue !== null) ? toValue : 100;
+                            const randomString = generateString(randomBetween(min, max + 1));
+                            $frameCurrent.find(".js-point-comment").val(randomString);
                         }
                     }
                 }
-                $(".frame-current").find("button.js-next-question")[0].click();
+                $frameCurrent.find("button.js-next-question").eq(0).trigger("click");
                 return false;
             }
 
             // Text highlighter
             if ($(".frame-current[data-question-type='text-highlighter']").length > 0) {
-                let numberOfItems = $(".frame-current").get(0).instance.question.items.length;
+                const numberOfItems = $frameCurrent.get(0).instance.question.items.length;
                 let area = document.getElementsByClassName("frame-current")[0].getElementsByClassName("text-highlighting-area")[0];
                 let selection = document.getSelection();
                 let range = document.createRange();
@@ -404,32 +399,29 @@
                     range.setEnd(area.lastChild, arrayOfIndexes[0][1]);
                     selection.removeAllRanges();
                     selection.addRange(range);
-                    document.getElementsByClassName("frame-current")[0].instance.onMouseUp();
-                    $(".frame-current").get(0).instance.hideComment();
-                    if ($(".frame-current").get(0).instance.question.minCharacters > 0) {
-                        let maxCharacters;
-                        if ($(".frame-current").get(0).instance.question.maxCharacters != null) {
-                            maxCharacters = $(".frame-current").get(0).instance.question.maxCharacters;
-                        } else {
-                            maxCharacters = 17;
-                        }
-                        let randomString = faker.random.words(30).substring(0, maxCharacters);
-                        $(".frame-current").get(0).instance.highlights[i].$comment = randomString;
+                    $frameCurrent.get(0).instance.onMouseUp();
+                    $frameCurrent.get(0).instance.hideComment();
+                    const fromValue = $frameCurrent.get(0).instance.question.minCharacters;
+                    const min = (fromValue !== null) ? fromValue : 0;
+                    const toValue = $frameCurrent.get(0).instance.question.maxCharacters;
+                    const max = (toValue !== null) ? toValue : 100;
+                    if (max !== 0) {
+                        $frameCurrent.get(0).instance.highlights[i].$comment = generateString(randomBetween(min, max + 1));
                     }
                 }
                 selection.deleteFromDocument();
-                $(".frame-current").find("button.js-next-question")[0].click();
+                $frameCurrent.find("button.js-next-question").eq(0).trigger("click");
                 return false;
             }
 
             // Image heatmap BRUSHES
             if ($(".frame-current[data-question-type='image-heatmap-brushes']").length > 0) {
-                let numberOfItems = $(".frame-current").get(0).instance.question.items.length;
+                const numberOfItems = $frameCurrent.get(0).instance.question.items.length;
                 for (let i = 0; i < numberOfItems; i++) {
                     $(".heatmap-brushes-type:visible .btn").get(i).click();
                     let mouseDown = new jQuery.Event("mousedown");
                     let mouseUp = new jQuery.Event("mouseup");
-                    let heatmap = $(".frame-current").find(".js-image");
+                    let heatmap = $frameCurrent.find(".js-image");
                     mouseDown.pageX = mouseUp.pageX = heatmap.get(0).getBoundingClientRect().x + randomBetween(0,
                         heatmap.get(0).getBoundingClientRect().width);
                     mouseDown.pageY = mouseUp.pageY = heatmap.get(0).getBoundingClientRect().y + randomBetween(0,
@@ -437,18 +429,16 @@
                     $(heatmap).trigger(mouseDown);
                     $(document).trigger(mouseUp);
 
-                    if ($(".frame-current").find(".heatmap-brushes--comment-head").is(':visible')) {
-                        let maxCharacters;
-                        if ($(".frame-current").get(0).instance.question.maxCharacters != null) {
-                            maxCharacters = $(".frame-current").get(0).instance.question.maxCharacters;
-                        } else {
-                            maxCharacters = 17;
-                        }
-                        let randomString = faker.random.words(30).substring(0, maxCharacters);
-                        $(".frame-current").find("textarea:visible").val(randomString);
+                    if ($frameCurrent.find(".heatmap-brushes--comment-head").is(':visible')) {
+                        const fromValue = $frameCurrent.get(0).instance.question.minCharacters;
+                        const min = (fromValue !== null) ? fromValue : 0;
+                        const toValue = $frameCurrent.get(0).instance.question.maxCharacters;
+                        const max = (toValue !== null) ? toValue : 100;
+                        const randomString = generateString(randomBetween(min, max + 1));
+                        $frameCurrent.find("textarea:visible").val(randomString);
                     }
                 }
-                $(".frame-current").find("button.js-next-question")[0].click();
+                $frameCurrent.find("button.js-next-question").eq(0).trigger("click");
                 return false;
             }
 
@@ -456,10 +446,10 @@
             if ($(".frame-current[data-question-type*='swipe-card']").length > 0) {
                 switch (randomBetween(1, 3)) {
                     case 1:
-                        $(".frame-current").find("button.dislike")[0].click();
+                        $frameCurrent.find("button.dislike")[0].click();
                         break;
                     case 2:
-                        $(".frame-current").find("button.like")[0].click();
+                        $frameCurrent.find("button.like")[0].click();
                         break;
                 }
                 return false;
@@ -467,130 +457,130 @@
 
             // GG
             if ($(".frame-current[data-question-type='gg']").length > 0) {
-                $(".frame-current").find(".btn-gg")[randomBetween(0, $(".frame-current").find(".btn-gg").length)].click();
+                $frameCurrent.find(".btn-gg")[randomBetween(0, $frameCurrent.find(".btn-gg").length)].click();
                 return false;
             }
 
             // VW qualifying question
             if ($(".frame-current.js-qualifying-frame[data-question-type='vw']").length > 0) {
-                $(".frame-current").find(".btn-vw")[randomBetween(0, $(".frame-current").find(".btn-vw").length)].click();
+                $frameCurrent.find(".btn-vw")[randomBetween(0, $frameCurrent.find(".btn-vw").length)].click();
                 return false;
             }
 
             // VW main
             if ($(".frame-current.frame-vw[data-question-type='vw']").length > 0) {
-                $(".frame-current").find("[name$='[vw][too_low]']").val(100 + randomBetween(0, 25));
-                $(".frame-current").find("[name$='[vw][cheap]']").val(125 + randomBetween(0, 25));
-                $(".frame-current").find("[name$='[vw][expensive]']").val(150 + randomBetween(0, 25));
-                $(".frame-current").find("[name$='[vw][too_high]']").val(175 + randomBetween(0, 25));
-                $(".frame-current").find("button.next-question-vw").click();
+                let minPrice = $frameCurrent.get(0).instance.question.parameters.min_price;
+                let maxPrice = $frameCurrent.get(0).instance.question.parameters.max_price;
+                let arrayOfPrices = getRandomIntegersFromRange(minPrice, maxPrice, 4);
+                $frameCurrent.find("[name$='[vw][too_low]']").val(arrayOfPrices[0][1]);
+                $frameCurrent.find("[name$='[vw][cheap]']").val(arrayOfPrices[1][0]);
+                $frameCurrent.find("[name$='[vw][expensive]']").val(arrayOfPrices[2][1]);
+                $frameCurrent.find("[name$='[vw][too_high]']").val(arrayOfPrices[3][1]);
+                $frameCurrent.find("button.next-question-vw").eq(0).trigger("click");
                 return false;
             }
 
             // VW Newton, Miller and Smith’s Extension
             if ($(".frame-current.js-nms-frame[data-question-type='vw']").length > 0) {
-                $(".frame-current").find("div.likert-radio").find("[class^='next-question']")[randomBetween(0, $(".frame-current").find("div.likert-radio").length)].click();
+                $frameCurrent.find("div.likert-radio").find("[class^='next-question']")[randomBetween(0, $frameCurrent.find("div.likert-radio").length)].click();
                 return false;
             }
 
             // Diagnostic question fivePointScale
             if ($(".frame-current[data-question-type='fivePointScale']").length > 0) {
-                $(".frame-current").find("div.likert-radio").find("[class^='next-question']")[randomBetween(0, $(".frame-current").find("div.likert-radio").length)].click();
+                $frameCurrent.find("div.likert-radio").find("[class^='next-question']")[randomBetween(0, $frameCurrent.find("div.likert-radio").length)].click();
                 return false;
             }
 
             // Diagnostic question positiveNegative
             if ($(".frame-current[data-question-type='positiveNegative']").length > 0) {
-                $(".frame-current").find(".scale-radio")[randomBetween(0, $(".frame-current").find(".scale-radio").length)].click();
-                //add btnNext.click
-                if ($(".frame-current").find(".next-question-starrating").length > 0) {
-                    $(".frame-current").find(".next-question-starrating")[0].click();
-                }
+                $frameCurrent.find(".scale-radio")[randomBetween(0, $frameCurrent.find(".scale-radio").length)].click();
+                $frameCurrent.find(".next-question-starrating").eq(0).trigger("click");
                 return false;
             }
 
             // Diagnostic question Multiple choice
             if ($(".frame-current[data-question-type='multipleChoice']").length > 0) {
-                let resultButtonNumber = randomBetween(0, $(".frame-current").find(".btn-multiple").length);
-                $(".frame-current").find(".btn-multiple")[resultButtonNumber].click();
-                if ($(".frame-current").find(".modal-body").is(':visible')) {
-                    $(".frame-current").find("input.multiple-other-text").val(faker.random.words(3));
-                    $(".frame-current").find("button.btn-success").click();
+                let resultButtonNumber = randomBetween(0, $frameCurrent.find(".btn-multiple").length);
+                $frameCurrent.find(".btn-multiple")[resultButtonNumber].click();
+                if ($frameCurrent.find(".modal-body").is(':visible')) {
+                    $frameCurrent.find("input.multiple-other-text").val(faker.random.words(3));
+                    $frameCurrent.find("button.btn-success").eq(0).trigger("click");
                 }
-                if ($(".frame-current").find("button.next-question").length > 0) {
-                    $(".frame-current").find("button.next-question")[0].click();
-                }
-                if ($(".frame-current").find("button.js-next-question").length > 0) {
-                    $(".frame-current").find("button.js-next-question")[0].click();
-                }
+                $frameCurrent.find("button.next-question").eq(0).trigger("click");
+                $frameCurrent.find("button.js-next-question").eq(0).trigger("click");
                 return false;
             }
 
             // Brand association CT
             if ($(".frame-current.js-brand-association").length > 0) {
-                $(".frame-current").find(".btn-multiple")[randomBetween(0, $(".frame-current").find(".btn-multiple").length)].click();
+                $frameCurrent.find(".btn-multiple")[randomBetween(0, $frameCurrent.find(".btn-multiple").length)].click();
                 return false;
             }
 
             // Adcepts in BPTO
             if ($(".frame-current[id^='adcept']").length > 0) {
-                $(".frame-current").find("button.next-question")[0].click();
+                $frameCurrent.find("button.next-question").eq(0).trigger("click");
                 return false;
             }
 
             // MaxDiff
-            if ($(".frame-current").find(".next-question__max-diff").length > 0) {
-                if ($($(".frame-current").find(".conjoint.best")[0]).attr('checked') != 'checked') {
-                    $(".frame-current").find("label.btn-action")[0].click();
+            if ($frameCurrent.find(".next-question__max-diff").length > 0) {
+                const $best = $frameCurrent.find(".conjoint.best").eq(0);
+                if ($best.attr('checked') !== 'checked') {
+                    $best.next("label.btn-action").get(0).click();
                 }
 
-                if ($($(".frame-current").find(".conjoint.worst")[1]).attr('checked') != 'checked') {
-                    $(".frame-current").find("label.btn-action")[3].click();
+                const $worst = $frameCurrent.find(".conjoint.worst").eq(1);
+                if ($worst.attr('checked') !== 'checked') {
+                    $worst.next("label.btn-action").get(0).click();
                 }
 
-                if ($(".frame-current").find(".next-question").length > 0) {
-                    $(".frame-current").find("button.next-question")[0].click();
+                const $nextQuestion = $frameCurrent.find("button.next-question").eq(0);
+                if ($nextQuestion.length > 0) {
+                    $nextQuestion.trigger("click");
                     return false;
                 }
             }
 
             // Conjoint
-            if ($(".frame-current").find(".product-wrapper").find(".next-question").length > 0) {
+            if ($frameCurrent.find(".product-wrapper").find(".next-question").length > 0) {
                 setTimeout(function () {
                     switch (studyStrategy) {
                         case 0:
-                            $(".frame-current").find(".product-wrapper").find(".next-question")[randomBetween(0,
-                                $(".frame-current").find(".product-wrapper").find(".next-question").length)].click();
+                            $frameCurrent.find(".product-wrapper").find(".next-question")[randomBetween(0,
+                                $frameCurrent.find(".product-wrapper").find(".next-question").length)].click();
                             break;
                         case 1:
-                            let maxItem = $(".frame-current").find(".product-wrapper").find("[data-level-type='price']").length;
-                            let minPrice = $($(".frame-current").find(".product-wrapper")
+                            const maxItem = $frameCurrent.find(".product-wrapper").find("[data-level-type='price']").length;
+                            let minPrice = $($frameCurrent.find(".product-wrapper")
                                 .find("[data-level-type='price']")[0]).attr("data-level-value");
                             let indexOfMinPrice = 0;
                             for (let i = 0; i < maxItem; i++) {
-                                if ($($(".frame-current").find(".product-wrapper").find("[data-level-type='price']")[i])
+                                if ($($frameCurrent.find(".product-wrapper").find("[data-level-type='price']")[i])
                                     .attr("data-level-value") < minPrice) {
-                                    minPrice = $($(".frame-current").find(".product-wrapper")
+                                    minPrice = $($frameCurrent.find(".product-wrapper")
                                         .find("[data-level-type='price']")[i]).attr("data-level-value");
                                     indexOfMinPrice = i;
                                 }
                             }
-                            $(".frame-current").find(".product-wrapper").find(".next-question")[indexOfMinPrice].click();
+                            $frameCurrent.find(".product-wrapper").find(".next-question")[indexOfMinPrice].click();
                             break;
                     }
                 }, 2000);
                 return false;
             }
 
-            // Conjoint with condition for "Two-stage response"
-            if ($(".frame-current").find(".product-wrapper").find(".next-question-two-stage").length > 0) {
+            // Conjoint with a condition for "Two-stage response"
+            if ($frameCurrent.find(".product-wrapper").find(".next-question-two-stage").length > 0) {
                 setTimeout(function () {
-                    $(".frame-current").find(".product-wrapper").find(".next-question-two-stage")[randomBetween(0,
-                        $(".frame-current").find(".product-wrapper").find(".next-question-two-stage").length)].click();
+                    $frameCurrent.find(".product-wrapper").find(".next-question-two-stage")[randomBetween(0,
+                        $frameCurrent.find(".product-wrapper").find(".next-question-two-stage").length)].click();
                     setTimeout(function () {
-                        //condition for "Two-stage response"
-                        if ($("#twoStageModal").find(".modal-title").length > 0) {
-                            $("#twoStageModal").find("button.btn-default")[randomBetween(0, 2)].click();
+                        // condition for "Two-stage response"
+                        const $twoStageModal = $("#twoStageModal");
+                        if ($twoStageModal.find(".modal-title").length > 0) {
+                            $twoStageModal.find("button.btn-default")[randomBetween(0, 2)].click();
                         }
                     }, 700);
                 }, 2000);
@@ -599,26 +589,26 @@
 
             // Intro text...
             if ($(".frame-current[data-question-type='intro']").length > 0) {
-                $(".frame-current").find("button.next-question")[0].click();
+                $frameCurrent.find("button.next-question").eq(0).trigger("click");
                 return false;
             }
 
-            if ($(".frame-current").find(".btn-multiple").length +
-                $(".frame-current").find("input.short-answer").length +
-                $(".frame-current").find(".scale-radio").length +
-                $(".frame-current").find("[name$='[vw][too_low]']").length +
-                $(".frame-current").find(".product-wrapper").length +
-                $(".frame-current").find("button.js-next-question").length +
-                $(".frame-current").find(".swipe-cards--buttons").length +
-                $(".frame-current").find("button.next-question").length == 0) {
+            if ($frameCurrent.find(".btn-multiple").length +
+                $frameCurrent.find("input.short-answer").length +
+                $frameCurrent.find(".scale-radio").length +
+                $frameCurrent.find("[name$='[vw][too_low]']").length +
+                $frameCurrent.find(".product-wrapper").length +
+                $frameCurrent.find("button.js-next-question").length +
+                $frameCurrent.find(".swipe-cards--buttons").length +
+                $frameCurrent.find("button.next-question").length === 0) {
                 setTimeout(function () {
                     location.reload();
-                }, 5000);
+                }, 6000);
                 clearInterval(doing);
                 return false;
             }
         };
-        var doing = setInterval(doTheThing, 3500);
+        let doing = setInterval(doTheThing, 3500);
     });
 
     // simulate drag and drop for the Matrix categorisation AQ
@@ -649,6 +639,20 @@
                 result.push([num1, num2]);
             } else {
                 result.push([0, 1]);
+            }
+        }
+        return result;
+    }
+
+    function generateString(length) {
+        let result = '';
+        while (result.length < length) {
+            const word = faker.random.words(1);
+            const spaceLeft = length - result.length;
+            if (word.length <= spaceLeft) {
+                result += (result.length ? ' ' : '') + word;
+            } else {
+                result += word.substring(0, spaceLeft);
             }
         }
         return result;
