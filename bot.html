@@ -526,6 +526,7 @@
 
             // MaxDiff
             if ($frameCurrent.find(".next-question__max-diff").length > 0) {
+                window.mouseMoveCount = randomBetween(50, 200);
                 const $best = $frameCurrent.find(".conjoint.best").eq(0);
                 if ($best.attr('checked') !== 'checked') {
                     $best.next("label.btn-action").get(0).click();
@@ -548,6 +549,7 @@
                 setTimeout(function () {
                     switch (studyStrategy) {
                         case 0:
+                            window.mouseMoveCount = randomBetween(50, 200);
                             $frameCurrent.find(".product-wrapper").find(".next-question")[randomBetween(0,
                                 $frameCurrent.find(".product-wrapper").find(".next-question").length)].click();
                             break;
@@ -564,6 +566,7 @@
                                     indexOfMinPrice = i;
                                 }
                             }
+                            window.mouseMoveCount = randomBetween(50, 200);
                             $frameCurrent.find(".product-wrapper").find(".next-question")[indexOfMinPrice].click();
                             break;
                     }
@@ -573,6 +576,7 @@
 
             // Conjoint with a condition for "Two-stage response"
             if ($frameCurrent.find(".product-wrapper").find(".next-question-two-stage").length > 0) {
+                window.mouseMoveCount = randomBetween(50, 200);
                 setTimeout(function () {
                     $frameCurrent.find(".product-wrapper").find(".next-question-two-stage")[randomBetween(0,
                         $frameCurrent.find(".product-wrapper").find(".next-question-two-stage").length)].click();
