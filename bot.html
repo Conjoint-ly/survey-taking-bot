@@ -469,8 +469,8 @@
 
             // VW main
             if ($(".frame-current.frame-vw[data-question-type='vw']").length > 0) {
-                let minPrice = Number($frameCurrent.get(0).instance.question.parameters.min_price);
-                let maxPrice = Number($frameCurrent.get(0).instance.question.parameters.max_price);
+                let minPrice = Number($frameCurrent.get(0).instance.question.min_price);
+                let maxPrice = Number($frameCurrent.get(0).instance.question.max_price);
                 let arrayOfPrices = getRandomIntegersFromRange(minPrice, maxPrice, 4);
                 $frameCurrent.find("[name$='[vw][too_low]']").val(arrayOfPrices[0][1]);
                 $frameCurrent.find("[name$='[vw][cheap]']").val(arrayOfPrices[1][0]);
