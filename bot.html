@@ -250,9 +250,9 @@
 
             // Short text Any*
             if ($(".frame-current[data-question-type='short'][data-question-answer-type='any']").length > 0) {
-                const fromValue = $frameCurrent.get(0).instance.question.parameters.minCharacters;
+                const fromValue = $frameCurrent.get(0).instance.question.minCharacters;
                 const min = (fromValue !== null) ? fromValue : 0;
-                const toValue = $frameCurrent.get(0).instance.question.parameters.maxCharacters;
+                const toValue = $frameCurrent.get(0).instance.question.maxCharacters;
                 const max = (toValue !== null) ? toValue : 100;
                 const randomString = generateString(randomBetween(min, max + 1));
                 $frameCurrent.find("input.short-answer[type=text]").val(randomString);
