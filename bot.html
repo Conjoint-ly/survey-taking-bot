@@ -9,11 +9,6 @@
             "ko", "pl", "ru", "sv", "tr", "vi", "zh_CN", "zh_TW"];
         faker.locale = locales[faker.datatype.number(locales.length - 1)];
 
-        // [min;max)
-        const randomBetween = function (min = 0, max = 1) {
-            return Math.floor(Math.random() * (max - min) + min);
-        };
-
         const doTheThing = function () {
             const $frameCurrent = $(".frame-current");
             // Matrix constant sum
@@ -239,9 +234,9 @@
 
             // Short text Number*
             if ($(".frame-current[data-question-type='short'][data-question-answer-type='number']").length > 0) {
-                const fromValue = $frameCurrent.get(0).instance.question.parameters.range.from;
+                const fromValue = $frameCurrent.get(0).instance.question.range.from;
                 const min = (fromValue !== null) ? fromValue : 0;
-                const toValue = $frameCurrent.get(0).instance.question.parameters.range.to;
+                const toValue = $frameCurrent.get(0).instance.question.range.to;
                 const max = (toValue !== null) ? toValue : 100;
                 $frameCurrent.find("input.short-answer[type=number]").val(randomBetween(min, max + 1));
                 $frameCurrent.find("button.next-question").eq(0).trigger("click");
@@ -250,9 +245,9 @@
 
             // Short text Any*
             if ($(".frame-current[data-question-type='short'][data-question-answer-type='any']").length > 0) {
-                const fromValue = $frameCurrent.get(0).instance.question.parameters.minCharacters;
+                const fromValue = $frameCurrent.get(0).instance.question.minCharacters;
                 const min = (fromValue !== null) ? fromValue : 0;
-                const toValue = $frameCurrent.get(0).instance.question.parameters.maxCharacters;
+                const toValue = $frameCurrent.get(0).instance.question.maxCharacters;
                 const max = (toValue !== null) ? toValue : 100;
                 const randomString = generateString(randomBetween(min, max + 1));
                 $frameCurrent.find("input.short-answer[type=text]").val(randomString);
@@ -281,9 +276,9 @@
 
             // Positive/negative open-ended feedback*
             if ($(".frame-current[data-question-type='feedback']").length > 0) {
-                const fromValue = $frameCurrent.get(0).instance.question.parameters.minCharacters;
+                const fromValue = $frameCurrent.get(0).instance.question.minCharacters;
                 const min = (fromValue !== null) ? fromValue : 0;
-                const toValue = $frameCurrent.get(0).instance.question.parameters.maxCharacters;
+                const toValue = $frameCurrent.get(0).instance.question.maxCharacters;
                 const max = (toValue !== null) ? toValue : 100;
                 let randomString = generateString(randomBetween(min, max + 1));
                 $frameCurrent.find("textarea.feedback-good-answer").val(randomString);
@@ -416,27 +411,33 @@
 
             // Image heatmap BRUSHES
             if ($(".frame-current[data-question-type='image-heatmap-brushes']").length > 0) {
-                const numberOfItems = $frameCurrent.get(0).instance.question.items.length;
-                for (let i = 0; i < numberOfItems; i++) {
-                    $(".heatmap-brushes-type:visible .btn").get(i).click();
-                    let mouseDown = new jQuery.Event("mousedown");
-                    let mouseUp = new jQuery.Event("mouseup");
-                    let heatmap = $frameCurrent.find(".js-image");
-                    mouseDown.pageX = mouseUp.pageX = heatmap.get(0).getBoundingClientRect().x + randomBetween(0,
-                        heatmap.get(0).getBoundingClientRect().width);
-                    mouseDown.pageY = mouseUp.pageY = heatmap.get(0).getBoundingClientRect().y + randomBetween(0,
-                        heatmap.get(0).getBoundingClientRect().height);
-                    $(heatmap).trigger(mouseDown);
-                    $(document).trigger(mouseUp);
+                const instance = $frameCurrent.get(0).instance;
+                const numberOfItems = instance.question.items.length;
 
-                    if ($frameCurrent.find(".heatmap-brushes--comment-head").is(':visible')) {
-                        const fromValue = $frameCurrent.get(0).instance.question.minCharacters;
-                        const min = (fromValue !== null) ? fromValue : 0;
-                        const toValue = $frameCurrent.get(0).instance.question.maxCharacters;
-                        const max = (toValue !== null) ? toValue : 100;
-                        const randomString = generateString(randomBetween(min, max + 1));
-                        $frameCurrent.find("textarea:visible").val(randomString);
+                if ($frameCurrent.find(".heatmap-brushes--comment-head").is(':visible')) {
+                    const fromValue = instance.question.minCharacters;
+                    const min = (fromValue !== null) ? fromValue : 0;
+                    const toValue = instance.question.maxCharacters;
+                    const max = (toValue !== null) ? toValue : 100;
+                    const randomString = generateString(randomBetween(min, max + 1));
+                    $frameCurrent.find("textarea:visible").val(randomString);
+                    $frameCurrent.find(".heatmap-brushes--comment-head .js-comment-close").trigger("click");
+                }
+
+                for (let i = 0; i < numberOfItems; i++) {
+                    if (instance.app.hasStroke(instance.question.items[i].id)) {
+                        continue;
                     }
+
+                    $(".heatmap-brushes-type:visible .btn").get(i).click();
+                    const $heatmap = $frameCurrent.find(".js-image");
+                    const boundingRect = $heatmap.get(0).getBoundingClientRect();
+
+                    $heatmap.trigger(makeMouseEvent("mousedown", boundingRect));
+                    $heatmap.trigger(makeMouseEvent("mousemove", boundingRect));
+                    $(document).trigger(makeMouseEvent("mouseup", boundingRect));
+
+                    break;
                 }
                 $frameCurrent.find("button.js-next-question").eq(0).trigger("click");
                 return false;
@@ -469,8 +470,8 @@
 
             // VW main
             if ($(".frame-current.frame-vw[data-question-type='vw']").length > 0) {
-                let minPrice = Number($frameCurrent.get(0).instance.question.parameters.min_price);
-                let maxPrice = Number($frameCurrent.get(0).instance.question.parameters.max_price);
+                let minPrice = Number($frameCurrent.get(0).instance.question.min_price);
+                let maxPrice = Number($frameCurrent.get(0).instance.question.max_price);
                 let arrayOfPrices = getRandomIntegersFromRange(minPrice, maxPrice, 4);
                 $frameCurrent.find("[name$='[vw][too_low]']").val(arrayOfPrices[0][1]);
                 $frameCurrent.find("[name$='[vw][cheap]']").val(arrayOfPrices[1][0]);
@@ -613,52 +614,72 @@
             }
         };
         let doing = setInterval(doTheThing, 3500);
-    });
 
-    // simulate drag and drop for the Matrix categorisation AQ
-    function changeDomElementPosition(movableElement, boundaryElement) {
-        boundaryElement.insertAdjacentElement('afterbegin', movableElement);
-    }
+        // simulate drag and drop for the Matrix categorisation AQ
+        function changeDomElementPosition(movableElement, boundaryElement) {
+            boundaryElement.insertAdjacentElement('afterbegin', movableElement);
+        }
 
-    function getRandomIntegersFromRange(min, max, numOfSubranges) {
-        let subrangeSize = Math.floor((max - min) / numOfSubranges);
-        let result = [];
-        for (let i = 0; i < numOfSubranges; i++) {
-            let subrangeMin = min + (i * subrangeSize);
-            let subrangeMax = subrangeMin + subrangeSize;
-            let num1 = Math.floor(Math.random() * (subrangeMax - subrangeMin)) + subrangeMin;
-            let num2 = Math.floor(Math.random() * (subrangeMax - subrangeMin)) + subrangeMin;
-            let j = 0;
-            let isSuccess = true;
-            while (num1 >= num2) {
-                num1 = Math.floor(Math.random() * (subrangeMax - subrangeMin)) + subrangeMin;
-                num2 = Math.floor(Math.random() * (subrangeMax - subrangeMin)) + subrangeMin;
-                j++;
-                if (j >= 100) {
-                    isSuccess = false;
-                    break;
+        function getRandomIntegersFromRange(min, max, numOfSubranges) {
+            let subrangeSize = Math.floor((max - min) / numOfSubranges);
+            let result = [];
+            for (let i = 0; i < numOfSubranges; i++) {
+                let subrangeMin = min + (i * subrangeSize);
+                let subrangeMax = subrangeMin + subrangeSize;
+                let num1 = Math.floor(Math.random() * (subrangeMax - subrangeMin)) + subrangeMin;
+                let num2 = Math.floor(Math.random() * (subrangeMax - subrangeMin)) + subrangeMin;
+                let j = 0;
+                let isSuccess = true;
+                while (num1 >= num2) {
+                    num1 = Math.floor(Math.random() * (subrangeMax - subrangeMin)) + subrangeMin;
+                    num2 = Math.floor(Math.random() * (subrangeMax - subrangeMin)) + subrangeMin;
+                    j++;
+                    if (j >= 100) {
+                        isSuccess = false;
+                        break;
+                    }
+                }
+                if (isSuccess) {
+                    result.push([num1, num2]);
+                } else {
+                    result.push([0, 1]);
                 }
             }
-            if (isSuccess) {
-                result.push([num1, num2]);
-            } else {
-                result.push([0, 1]);
-            }
+            return result;
         }
-        return result;
-    }
 
-    function generateString(length) {
-        let result = '';
-        while (result.length < length) {
-            const word = faker.random.words(1);
-            const spaceLeft = length - result.length;
-            if (word.length <= spaceLeft) {
-                result += (result.length ? ' ' : '') + word;
-            } else {
-                result += word.substring(0, spaceLeft);
+        function generateString(length) {
+            let result = '';
+            while (result.length < length) {
+                const word = faker.random.words(1);
+                const spaceLeft = length - result.length;
+                if (word.length <= spaceLeft) {
+                    result += (result.length ? ' ' : '') + word;
+                } else {
+                    result += word.substring(0, spaceLeft);
+                }
             }
+            return result;
         }
-        return result;
-    }
+
+        function generateXInRect(boundingRect) {
+            return boundingRect.x + randomBetween(0, boundingRect.width);
+        }
+
+        function generateYInRect(boundingRect) {
+            return boundingRect.y + randomBetween(0, boundingRect.height);
+        }
+
+        function makeMouseEvent(eventType, boundingRect) {
+            return new jQuery.Event(eventType, {
+                pageX: generateXInRect(boundingRect),
+                pageY: generateYInRect(boundingRect)
+            })
+        }
+
+        // [min;max)
+        function randomBetween(min = 0, max = 1) {
+            return Math.floor(Math.random() * (max - min) + min);
+        }
+    });
 </script>
