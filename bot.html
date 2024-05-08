@@ -598,6 +598,12 @@
                 return false;
             }
 
+            // Consent screen
+            if ($(".frame-current[data-question-type='consent']").length > 0) {
+                $frameCurrent.find("button.js-consent-agree").eq(0).trigger("click");
+                return false;
+            }
+
             if ($frameCurrent.find(".btn-multiple").length +
                 $frameCurrent.find("input.short-answer").length +
                 $frameCurrent.find(".scale-radio").length +
