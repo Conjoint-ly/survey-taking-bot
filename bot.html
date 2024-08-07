@@ -615,11 +615,21 @@
                 setTimeout(function () {
                     location.reload();
                 }, 6000);
-                clearInterval(doing);
+
+                wTicker.postMessage('stop');
+                wTicker.terminate();
+
                 return false;
             }
         };
-        let doing = setInterval(doTheThing, 3500);
+
+        const wTicker = new Worker('/assets/js/ticker.js');
+
+        wTicker.postMessage('start');
+
+        wTicker.addEventListener('message', function(){
+            doTheThing();
+        });
 
         // simulate drag and drop for the Matrix categorisation AQ
         function changeDomElementPosition(movableElement, boundaryElement) {
