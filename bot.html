@@ -623,7 +623,28 @@
             }
         };
 
-        const wTicker = new Worker('/assets/js/ticker.js');
+        const workerCodeString = 'let fading = false;\n' +
+            'let interval;\n' +
+            'self.addEventListener(\'message\', function(e){\n' +
+            '    switch (e.data) {\n' +
+            '        case \'start\':\n' +
+            '            if (!fading){\n' +
+            '                fading = true;\n' +
+            '                interval = setInterval(function(){\n' +
+            '                    self.postMessage(\'tick\');\n' +
+            '                }, 6000);\n' +
+            '            }\n' +
+            '            break;\n' +
+            '        case \'stop\':\n' +
+            '            clearInterval(interval);\n' +
+            '            fading = false;\n' +
+            '            break;\n' +
+            '    };\n' +
+            '}, false);\n';
+
+        const workerBlob = new Blob([workerCodeString], {type: 'application/javascript'});
+        const workerUrl = URL.createObjectURL(workerBlob);
+        const wTicker = new Worker(workerUrl);
 
         wTicker.postMessage('start');
 
