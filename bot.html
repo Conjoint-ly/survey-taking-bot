@@ -529,12 +529,12 @@
             if ($frameCurrent.find(".next-question__max-diff").length > 0) {
                 window.mouseMoveCount = randomBetween(50, 200);
                 const $best = $frameCurrent.find(".conjoint.best").eq(0);
-                if ($best.attr('checked') !== 'checked') {
+                if ($best.prop('checked') !== true) {
                     $best.next("label.btn-action").get(0).click();
                 }
 
                 const $worst = $frameCurrent.find(".conjoint.worst").eq(1);
-                if ($worst.attr('checked') !== 'checked') {
+                if ($worst.prop('checked') !== true) {
                     $worst.next("label.btn-action").get(0).click();
                 }
 
