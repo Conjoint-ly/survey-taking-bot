@@ -382,16 +382,66 @@
 
             // Text highlighter
             if ($(".frame-current[data-question-type='text-highlighter']").length > 0) {
+                const getNextTextNode = (node) => {
+                    while (node) {
+                        if (node.nodeType === Node.TEXT_NODE) {
+                            return node;
+                        }
+                        if (node.firstChild) {
+                            node = node.firstChild;
+                        } else {
+                            while (node && !node.nextSibling) {
+                                node = node.parentNode;
+                            }
+                            if (node) {
+                                node = node.nextSibling;
+                            }
+                        }
+                    }
+                    return null;
+                };
+
+                function getRangePart (textNode, offset) {
+                    if (textNode.length >= offset) {
+                        return {
+                            container: textNode,
+                            offset: offset,
+                        };
+                    } else {
+                        const nextTextNode = getNextTextNode(textNode.nextSibling ? textNode.nextSibling : textNode.parentNode?.nextSibling);
+                        if (!nextTextNode) {
+                            return {
+                                container: null,
+                            };
+                        }
+                        const delta = offset - textNode.length;
+                        return getRangePart(nextTextNode, delta);
+                    }
+                };
+
                 const numberOfItems = $frameCurrent.get(0).instance.question.items.length;
                 let area = document.getElementsByClassName("frame-current")[0].getElementsByClassName("text-highlighting-area")[0];
                 let selection = document.getSelection();
                 let range = document.createRange();
+                let textLength = area.textContent.length;
+                let arrayOfIndexes = getRandomIntegersFromRange(0, textLength, numberOfItems);
+
                 for (let i = 0; i < numberOfItems; i++) {
+                    let firstTextNode = getNextTextNode(area);
                     $(".js-btn:visible").get(i).click();
-                    let textLength = area.lastChild.textContent.length;
-                    let arrayOfIndexes = getRandomIntegersFromRange(1, textLength, numberOfItems - i);
-                    range.setStart(area.lastChild, arrayOfIndexes[0][0]);
-                    range.setEnd(area.lastChild, arrayOfIndexes[0][1]);
+
+                    const {container: startContainer, offset: startOffset} = getRangePart(firstTextNode, arrayOfIndexes[i][0]);
+                    if (!startContainer) {
+                        break;
+                    }
+                    range.setStart(startContainer, startOffset);
+
+                    const {container: endContainer, offset: endOffset} = getRangePart(startContainer, startOffset + arrayOfIndexes[i][1] - arrayOfIndexes[i][0]);
+                    if (!endContainer) {
+                        break;
+                    }
+                    range.setEnd(endContainer, endOffset);
+
                     selection.removeAllRanges();
                     selection.addRange(range);
                     $frameCurrent.get(0).instance.onMouseUp();
