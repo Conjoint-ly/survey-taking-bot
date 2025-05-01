@@ -171,14 +171,22 @@
 
             // Multiple choice
             if ($(".frame-current[data-question-type='multiple']").length > 0) {
-                const resultButtonNumber = randomBetween(0, $frameCurrent.find(".btn-multiple:visible").length);
-                $frameCurrent.find(".btn-multiple:visible")[resultButtonNumber].click();
-                if ($frameCurrent.find(".modal-body").is(':visible')) {
-                    $frameCurrent.find("input.multiple-other-text").val(faker.random.words(3));
-                    $frameCurrent.find("button.btn-success").eq(0).trigger("click");
+                const questionView = $frameCurrent.get(0).instance.question.optionsView;
+                const $options = questionView === "list"
+                    ? $frameCurrent.find(".js-multiple-option:visible") // radios
+                    : $frameCurrent.find(".btn-multiple span:visible"); // buttons
+                if ($options.length > 0) {
+                    const $selected = $options.eq(randomBetween(0, $options.length));
+                    $selected.get(0).click();
                 }
-                $frameCurrent.find("button.js-next-question").eq(0).trigger("click");
-                $frameCurrent.find("button.next-question").eq(0).trigger("click");
+                if ($frameCurrent.find(".modal-body").is(":visible")) {
+                    $frameCurrent.find("input.multiple-other-text").val(faker.random.words(3));
+                    $frameCurrent.find("button.btn-success").first().trigger("click");
+                }
+                if ($frameCurrent.find("input.multiple-list-item-other-text").is(":visible")) {
+                    $frameCurrent.find("input.multiple-list-item-other-text").val(faker.random.words(3));
+                }
+                $frameCurrent.find("button.js-next-question, button.next-question").first().trigger("click");
                 return false;
             }
 
@@ -401,7 +409,7 @@
                     return null;
                 };
 
-                function getRangePart (textNode, offset) {
+                function getRangePart(textNode, offset) {
                     if (textNode.length >= offset) {
                         return {
                             container: textNode,
@@ -430,13 +438,19 @@
                     let firstTextNode = getNextTextNode(area);
                     $(".js-btn:visible").get(i).click();
 
-                    const {container: startContainer, offset: startOffset} = getRangePart(firstTextNode, arrayOfIndexes[i][0]);
+                    const {
+                        container: startContainer,
+                        offset: startOffset
+                    } = getRangePart(firstTextNode, arrayOfIndexes[i][0]);
                     if (!startContainer) {
                         break;
                     }
                     range.setStart(startContainer, startOffset);
 
-                    const {container: endContainer, offset: endOffset} = getRangePart(startContainer, startOffset + arrayOfIndexes[i][1] - arrayOfIndexes[i][0]);
+                    const {
+                        container: endContainer,
+                        offset: endOffset
+                    } = getRangePart(startContainer, startOffset + arrayOfIndexes[i][1] - arrayOfIndexes[i][0]);
                     if (!endContainer) {
                         break;
                     }
@@ -698,7 +712,7 @@
 
         wTicker.postMessage('start');
 
-        wTicker.addEventListener('message', function(){
+        wTicker.addEventListener('message', function () {
             doTheThing();
         });
 
